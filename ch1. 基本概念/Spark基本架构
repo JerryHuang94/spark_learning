@@ -1,0 +1,60 @@
+2.1 基本概念和架构设计
+RDD：Resillient Distributed Dataset（弹性分布式数据集），是分布式内存的一个抽象概念，提供一个高度受限的共享内存模型
+      弹性指数据可多可少，数据多存到多机的内存中：分区可变化，计算过程中分区数量可动态变化。
+DAG：Directed Acyclic Graph （有向无环图），反映RDD之间的依赖关系
+      操作是对RDD进行操作，这些操作会形成一个DAG
+Executor：是运行在工作节点（WokerNode）的一个进程，负责运行Task
+Application：用户编写的Spark应用程序
+Task：运行在Executor的进程上的工作单元
+Job（作业）：一个Job包含多个RDD和作用于相应RDD上的各种操作
+Stage：是Job的基本调度单位，一个Job会分为多组Task，每组Task被称为Stage，或者被称为TaskSet，代表了一组关联的、相互之间没有Shuffle依赖关系的任务组成的任务集
+
+Spark架构：一主多从架构
+主（Driver Program）从（WokerNode）节点中有一个Cluster Manager（集群资源管理器）
+
+2.2 基本运行流程
+1. 为应用构建基本运行环境，找到主节点（Driver），生成一个SparkContext对象，负责任务的调度、监控、汇总。
+2. SparkContext向资源管理器申请资源，管理器分配CPU内存资源，启动Executor进程
+3. 在Worker Node上启动后，派生出线程执行Task
+4. SparkContext根据代码生成DAG，由DAF Scheduler将图分解成Stage，每个Stage包含若干Task
+5. Worker Node对Task Scheduler申请运行，Task Scheduler负责分发任务（分配原则：计算向数据靠拢，减少数据的移动开销）
+6. 执行Task，将结果反馈给Task Scheduler和DAG Scheduler，写入或者展示给客户
+
+2.3 RDD运行原理
+RDD是一个数据抽象。
+RDD是一个只读的分区记录集合，一个分布式对象的集合。
+RDD在转化生成的过程中才可以修改。
+操作类型：动作类型操作（Action）、转换类型操作（Transformation），均是粗粒度的转化操作（即对所有数据进行修改）。
+Spark提供了RDD的API，通过调用API实现对RDD的各种操作
+
+RDD的典型执行过程：
+1. 读入外部数据源进行创建
+2. 进行一系列转换
+3. 动作类型操作进行计算得到结果
+
+惰性调用机制：只记录转换的轨迹，并不实际发生计算。
+遇到动作类型操作才触发计算，从头开始计算。
+
+管道化：计算中间结果不写入磁盘
+
+Spark高效特性：
+高效容错性（天然的容错性）：DAG、
+不写入磁盘在内存上
+
+2.4 RDD之间的依赖关系
+Shuffle操作：洗牌
+窄依赖：
+一个父RDD对应一个子RDD 或 多个父RDD对应一个子RDD
+
+宽依赖（发生了shuffle操作）：
+一个父RDD对应多个子RDD
+
+阶段划分的依据：是否为宽依赖。（宽依赖会被划分为多个阶段）
+
+Spark优化原理：fork/join机制
+
+fork/join优化原理：
+没有必要join的地方可以不join。
+
+2.5 Spark部署方式
+集群部署：Standalone、Mesos
