@@ -1,0 +1,27 @@
+1.1 Spark 概述
+三大分布式计算系统：Spark、Hadoop、Storm
+Spark执行引擎：DAG（有向无环图） -->  流水线优化
+基于内存的执行框架
+
+组件：
+Spark SQL （SQL查询）
+Spark streaming （流式计算）
+Spark MLlib （机器学习）
+GraphX （图算法）
+
+运行模式：独立的集群模式
+
+可访问多种数据源： HDFS、Cassandra、HBase、Hive
+
+1.2 Spark生态系统
+
+企业应用场景：
+复杂的批量数据处理
+基于历史数据的交互式查询
+基于实时数据流的数据处理
+
+BDAS(Berkeley Data Analytucs Stack)：
+资源调度管理层： Mesos or Hadoop YARN
+存储组件：S3（亚马逊提供的简单存储服务） or HDFS（基于磁盘的分布式文件系统） or Tachyon（基于内存的分布式文件系统）
+处理引擎： Spark Core（批处理）
+其他组件： Spark Streaming or Structured Streaming（满足流计算需求）、BlinkDB or Spark SQL（满足交互式查询分析需求）、MLlib（机器学习）、GraphX（图计算）
